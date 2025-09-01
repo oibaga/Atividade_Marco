@@ -17,6 +17,4 @@ public class EnemyChase : MonoBehaviour
     {
         agent.SetDestination(player.position);
     }
-
-
 }
