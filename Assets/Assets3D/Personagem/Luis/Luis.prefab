@@ -58,9 +58,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 127806885909862564}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.009, y: 1.7451723, z: -0.003}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.00599929, y: 0.014999171, z: -0.00008999612, w: 0.9998696}
+  m_LocalPosition: {x: 0.011999335, y: 1.7440001, z: -0.0030521974}
+  m_LocalScale: {x: 1, y: 1.3011, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4281315166364374133}
@@ -77,9 +77,9 @@ Light:
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 30
+  m_Range: 8.453413
+  m_SpotAngle: 66.99696
+  m_InnerSpotAngle: 66.99696
   m_CookieSize: 10
   m_Shadows:
     m_Type: 0
@@ -880,7 +880,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  maxDistance: 10
+  maxDistance: 3.5
+  minDistance: 1
   navMeshAgent: {fileID: 1831611558847730443}
   animator: {fileID: 7893233040625356303}
 --- !u!1 &3643023906687769323
