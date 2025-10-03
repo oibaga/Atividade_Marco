@@ -49,6 +49,6 @@ public class CameramanAgentScript : MonoBehaviour
         }
 
         animator.SetBool("isMoving", isMoving);
-        animator.SetInteger("MovementDirection", direction);
+        animator.SetInteger("movementDirection", direction);
     }
 }
