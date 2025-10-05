@@ -10,6 +10,9 @@ public class CameramanAgentScript : MonoBehaviour
     [SerializeField] float minDistance = 1f;
     [SerializeField] NavMeshAgent navMeshAgent;
     [SerializeField] Animator animator;
+    [SerializeField] Transform handCamera;
+    [SerializeField] Transform spotlight;
+    [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, 0);
     private bool isMoving = false;
     private int direction = 0;
 
@@ -48,6 +51,7 @@ public class CameramanAgentScript : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
         }
 
+        spotlight.position = new Vector3 (handCamera.position.x + cameraOffset.x, spotlight.position.y + cameraOffset.y, handCamera.position.z + cameraOffset.z);
         animator.SetBool("isMoving", isMoving);
         animator.SetInteger("movementDirection", direction);
     }
