@@ -21,7 +21,7 @@ public class PlayerMoviment : MonoBehaviour
 
     private void MovePlayer()
     {
-        Vector3 movement = new Vector3(move.x, 0, move.y);
+        Vector3 movement = new Vector3(move.y * -1, 0, move.x);
 
         if (movement != Vector3.zero)
         {
