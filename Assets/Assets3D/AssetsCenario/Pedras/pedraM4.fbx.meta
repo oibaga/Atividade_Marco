@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: 7a369abf94a2035459fa2265c32cb9b9
+guid: d52bdab4ecc5cfe428067ac7f960abe4
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Pedra
+    second: {fileID: 2100000, guid: 8c6f0d78032f97440b64b16f4d5d35ac, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -68,9 +73,9 @@ ModelImporter:
     useFileScale: 1
     strictVertexDataChecks: 0
   tangentSpace:
-    normalSmoothAngle: 0
-    normalImportMode: 1
-    tangentImportMode: 2
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1

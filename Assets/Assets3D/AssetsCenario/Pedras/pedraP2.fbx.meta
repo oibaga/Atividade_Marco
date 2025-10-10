@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: f90e05e1431497440b385a16f17765de
+guid: b48fd266be88e5c40862524e24c7de15
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Pedra
+    second: {fileID: 2100000, guid: 8c6f0d78032f97440b64b16f4d5d35ac, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
