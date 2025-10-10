@@ -683,9 +683,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+  animator: {fileID: 7752642337126561070}
   chaseRadius: 6
   patrolRadius: 8
   patrolInterval: 3
   safeZoneLayer:
     serializedVersion: 2
     m_Bits: 0
+--- !u!95 &7752642337126561070 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: ca044aeed00e08846ad0c7d0fbf9b734, type: 3}
+  m_PrefabInstance: {fileID: 4250411273677015231}
+  m_PrefabAsset: {fileID: 0}

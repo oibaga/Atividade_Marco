@@ -29,11 +29,13 @@ public class MonsterScript : MonoBehaviour
                 Patrol();
                 animator.SetBool("isMoving", true);
                 animator.SetBool("isRunning", false);
+                agent.speed = 2.8f;
                 break;
             case State.Engage:
                 Engage();
                 animator.SetBool("isMoving", true);
                 animator.SetBool("isRunning", true);
+                agent.speed = 3.1f;
                 break;
         }
     }
@@ -93,7 +95,7 @@ public class MonsterScript : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        agent.updateRotation = false;
+        //agent.updateRotation = false;
         agent.updateUpAxis = false;
     }
 
