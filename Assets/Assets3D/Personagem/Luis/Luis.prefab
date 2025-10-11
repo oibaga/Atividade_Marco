@@ -265,6 +265,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+  mainCamera: {fileID: 0}
   maxDistance: 3.5
   minDistance: 2
   navMeshAgent: {fileID: 8727578887209884819}
@@ -272,6 +273,9 @@ MonoBehaviour:
   handCamera: {fileID: 9004675589168085365}
   spotlight: {fileID: 2087481263859498780}
   cameraOffset: {x: 0, y: 0, z: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!195 &8727578887209884819
 NavMeshAgent:
   m_ObjectHideFlags: 0

@@ -6,6 +6,7 @@ using UnityEngine.Animations;
 public class CameramanAgentScript : MonoBehaviour
 {
     [SerializeField] Transform target;
+    [SerializeField] Camera mainCamera;
     [SerializeField] float maxDistance = 3.5f;
     [SerializeField] float minDistance = 1f;
     [SerializeField] NavMeshAgent navMeshAgent;
@@ -13,8 +14,14 @@ public class CameramanAgentScript : MonoBehaviour
     [SerializeField] Transform handCamera;
     [SerializeField] Transform spotlight;
     [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, 0);
+    [SerializeField] private LayerMask groundLayer;
     private bool isMoving = false;
     private int direction = 0;
+
+    private void Awake()
+    {
+        navMeshAgent.updateRotation = false;
+    }
 
     void FixedUpdate()
     {
@@ -43,12 +50,19 @@ public class CameramanAgentScript : MonoBehaviour
             direction = 0;
         }
 
-        Vector3 lookDirection = (target.position - transform.position);
-        lookDirection.y = 0; 
-        if (lookDirection != Vector3.zero)
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Debug.DrawRay(ray.origin, ray.direction * 25f, Color.red);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 25f, groundLayer))
         {
-            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+            Vector3 lookDirection = (hit.point - transform.position);
+            lookDirection.y = 0f;
+
+            if (lookDirection != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+                transform.rotation = Quaternion.Euler(0f, targetRotation.eulerAngles.y, 0f);
+            }
         }
 
         spotlight.position = new Vector3 (handCamera.position.x + cameraOffset.x, spotlight.position.y + cameraOffset.y, handCamera.position.z + cameraOffset.z);
