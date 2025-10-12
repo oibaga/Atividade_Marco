@@ -1,107 +1,151 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public class MonsterScript : MonoBehaviour
 {
-    private enum State { Patrol, Engage }
+    private enum State { Patrol, Roar, Chase }
     private State currentState = State.Patrol;
 
-    [Header("Referências")]
-    [SerializeField] private Transform target;
+    [Header("Referencias")]
+    [SerializeField] private Transform player;
     [SerializeField] private Animator animator;
     private NavMeshAgent agent;
 
     [Header("Configurações de Movimento")]
-    [SerializeField] private float chaseRadius = 6f;
-    [SerializeField] private float patrolRadius = 8f;
-    [SerializeField] private float patrolInterval = 3f;
-
-    [Header("Zona Segura")]
-    [SerializeField] private LayerMask safeZoneLayer; // <- defina no Inspector
+    [SerializeField] private float patrolRadius = 10f;
+    [SerializeField] private float patrolInterval = 4f;
+    [SerializeField] private float chaseSpeed = 4f;
+    [SerializeField] private float patrolSpeed = 2f;
+    [SerializeField] private float detectionRadius = 8f;
+    [SerializeField] private float loseDistance = 12f;
+    [SerializeField] private float giveUpTime = 3f;
 
     private float patrolTimer;
+    private Coroutine giveUpCoroutine;
 
-    void Update()
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        patrolTimer = patrolInterval;
+        SetRandomDestination();
+    }
+
+    private void Update()
     {
         switch (currentState)
         {
             case State.Patrol:
                 Patrol();
-                animator.SetBool("isMoving", true);
-                animator.SetBool("isRunning", false);
-                agent.speed = 2.8f;
                 break;
-            case State.Engage:
-                Engage();
-                animator.SetBool("isMoving", true);
-                animator.SetBool("isRunning", true);
-                agent.speed = 3.1f;
+            case State.Roar:
+                break;
+            case State.Chase:
+                Chase();
                 break;
         }
     }
 
     private void Patrol()
     {
-        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+        animator.SetBool("isWalking", true);
+        animator.SetBool("isRunning", false);
+        agent.speed = patrolSpeed;
 
-        if (distanceToTarget <= chaseRadius && !IsPlayerInSafeZone())
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distanceToPlayer <= detectionRadius)
         {
-            currentState = State.Engage;
+            ChangeState(State.Roar);
             return;
         }
-
         patrolTimer -= Time.deltaTime;
-        if (!agent.pathPending && agent.remainingDistance <= 0.2f || patrolTimer <= 0f)
+        if (!agent.pathPending && agent.remainingDistance <= 0.3f || patrolTimer <= 0f)
         {
-            SetRandomPatrolDestination();
+            SetRandomDestination();
             patrolTimer = patrolInterval;
         }
     }
 
-    private void Engage()
+    private void Roar()
     {
-        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+        animator.SetTrigger("Roar");
+        agent.ResetPath();
+        agent.speed = 0f;
 
-        agent.SetDestination(target.position);
+        StartCoroutine(RoarCoroutine());
+    }
 
-        if (distanceToTarget > chaseRadius || IsPlayerInSafeZone())
+    private IEnumerator RoarCoroutine()
+    {
+        yield return new WaitForSeconds(1.5f); 
+        ChangeState(State.Chase);
+    }
+
+    private void Chase()
+    {
+        animator.SetBool("isWalking", false);
+        animator.SetBool("isRunning", true);
+        agent.speed = chaseSpeed;
+
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        agent.SetDestination(player.position);
+
+        if (distanceToPlayer > loseDistance)
         {
-            currentState = State.Patrol;
-            SetRandomPatrolDestination();
-            patrolTimer = patrolInterval;
+            if (giveUpCoroutine == null)
+                giveUpCoroutine = StartCoroutine(GiveUpTimer());
+        }
+        else
+        {
+            if (giveUpCoroutine != null)
+            {
+                StopCoroutine(giveUpCoroutine);
+                giveUpCoroutine = null;
+            }
         }
     }
 
-    private void SetRandomPatrolDestination()
+    private IEnumerator GiveUpTimer()
     {
-        Vector3 center = transform.position;
-        float angle = Random.Range(0f, Mathf.PI * 2f);
-        float r = Random.Range(0f, patrolRadius);
-        Vector3 candidate = new Vector3(center.x + Mathf.Cos(angle) * r, center.y + Mathf.Sin(angle) * r, 0f);
+        yield return new WaitForSeconds(giveUpTime);
 
-        if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 1.5f, NavMesh.AllAreas))
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        if (distanceToPlayer > loseDistance)
+        {
+            ChangeState(State.Patrol);
+        }
+
+        giveUpCoroutine = null;
+    }
+
+    private void SetRandomDestination()
+    {
+        Vector3 randomDir = Random.insideUnitSphere * patrolRadius + transform.position;
+        if (NavMesh.SamplePosition(randomDir, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
         {
             agent.SetDestination(hit.position);
         }
     }
 
-    private bool IsPlayerInSafeZone()
+    private void ChangeState(State newState)
     {
-        Vector2 playerPos2D = target.position;
-        Collider2D hit = Physics2D.OverlapPoint(playerPos2D, safeZoneLayer);
-        return hit != null;
-    }
+        if (currentState == newState) return;
 
-    private void Awake()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        //agent.updateRotation = false;
-        agent.updateUpAxis = false;
-    }
+        currentState = newState;
 
-    private void Start()
-    {
-        patrolTimer = patrolInterval;
-        SetRandomPatrolDestination();
+        switch (newState)
+        {
+            case State.Patrol:
+                SetRandomDestination();
+                patrolTimer = patrolInterval;
+                break;
+            case State.Roar:
+                Roar();
+                break;
+            case State.Chase:
+                break;
+        }
     }
 }
