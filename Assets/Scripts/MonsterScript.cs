@@ -2,33 +2,37 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
-public class MonsterScript : MonoBehaviour
+public class EnemyFSM_PatrolPoints : MonoBehaviour
 {
-    private enum State { Patrol, Roar, Chase }
+    private enum State { Patrol, Roar, Chase, Attack }
     private State currentState = State.Patrol;
 
-    [Header("Referencias")]
+    [Header("Referências")]
     [SerializeField] private Transform player;
     [SerializeField] private Animator animator;
+    [SerializeField] private Transform[] patrolPoints;
+
     private NavMeshAgent agent;
+    private int currentPatrolIndex = -1;
+    private float currentWaitTime = 0f;
+    private float maxWaitTime = 0f;
 
     [Header("Configurações de Movimento")]
-    [SerializeField] private float patrolRadius = 10f;
-    [SerializeField] private float patrolInterval = 4f;
-    [SerializeField] private float chaseSpeed = 4f;
-    [SerializeField] private float patrolSpeed = 2f;
     [SerializeField] private float detectionRadius = 8f;
     [SerializeField] private float loseDistance = 12f;
     [SerializeField] private float giveUpTime = 3f;
+    [SerializeField] private float patrolSpeed = 2.5f;
+    [SerializeField] private float chaseSpeed = 4f;
 
-    private float patrolTimer;
     private Coroutine giveUpCoroutine;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        patrolTimer = patrolInterval;
-        SetRandomDestination();
+        agent.updateRotation = true;
+        agent.updateUpAxis = true;
+
+        GoToNextPatrolPoint();
     }
 
     private void Update()
@@ -43,12 +47,12 @@ public class MonsterScript : MonoBehaviour
             case State.Chase:
                 Chase();
                 break;
+            case State.Attack:
+                break;
         }
     }
-
     private void Patrol()
     {
-        animator.SetBool("isWalking", true);
         animator.SetBool("isRunning", false);
         agent.speed = patrolSpeed;
 
@@ -59,11 +63,25 @@ public class MonsterScript : MonoBehaviour
             ChangeState(State.Roar);
             return;
         }
-        patrolTimer -= Time.deltaTime;
-        if (!agent.pathPending && agent.remainingDistance <= 0.3f || patrolTimer <= 0f)
+
+        if (!agent.pathPending && agent.remainingDistance <= 0.3f)
         {
-            SetRandomDestination();
-            patrolTimer = patrolInterval;
+            if (maxWaitTime == 0)
+                maxWaitTime = Random.Range(3, 5);
+
+            currentWaitTime += Time.deltaTime;
+
+            if (currentWaitTime >= maxWaitTime)
+            {
+                currentWaitTime = 0;
+                maxWaitTime = 0;
+                animator.SetBool("isWalking", true);
+                GoToNextPatrolPoint();
+            }
+            else
+            {
+                animator.SetBool("isWalking", false);
+            }
         }
     }
 
@@ -72,16 +90,27 @@ public class MonsterScript : MonoBehaviour
         animator.SetTrigger("Roar");
         agent.ResetPath();
         agent.speed = 0f;
-
-        StartCoroutine(RoarCoroutine());
+        StartCoroutine( RoarCoroutine() );
+    }
+    private void Attack() 
+    {
+        animator.SetTrigger("Attack");
+        agent.ResetPath();
+        agent.speed = 0f;
+        StartCoroutine(AttackCoroutine());
     }
 
     private IEnumerator RoarCoroutine()
     {
-        yield return new WaitForSeconds(1.5f); 
+        yield return new WaitForSeconds(5.1f); // tempo da animação de rugido
+        animator.SetTrigger("StartRun");
         ChangeState(State.Chase);
     }
-
+    private IEnumerator AttackCoroutine()
+    {
+        yield return new WaitForSeconds(4.04f);
+        ChangeState(State.Patrol);
+    }
     private void Chase()
     {
         animator.SetBool("isWalking", false);
@@ -120,32 +149,43 @@ public class MonsterScript : MonoBehaviour
         giveUpCoroutine = null;
     }
 
-    private void SetRandomDestination()
+    private void GoToNextPatrolPoint()
     {
-        Vector3 randomDir = Random.insideUnitSphere * patrolRadius + transform.position;
-        if (NavMesh.SamplePosition(randomDir, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
-        {
-            agent.SetDestination(hit.position);
-        }
+        if (patrolPoints == null || patrolPoints.Length == 0)
+            return;
+
+        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+        agent.SetDestination(patrolPoints[currentPatrolIndex].position);
     }
 
     private void ChangeState(State newState)
     {
-        if (currentState == newState) return;
+        if (currentState == newState)
+            return;
 
         currentState = newState;
 
         switch (newState)
         {
             case State.Patrol:
-                SetRandomDestination();
-                patrolTimer = patrolInterval;
+                GoToNextPatrolPoint();
                 break;
             case State.Roar:
                 Roar();
                 break;
             case State.Chase:
                 break;
+            case State.Attack:
+                Attack();
+                break;
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, loseDistance);
     }
 }
