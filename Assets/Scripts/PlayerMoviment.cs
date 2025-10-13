@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,7 +8,7 @@ public class PlayerMoviment : MonoBehaviour
     [SerializeField] CharacterController characterController;
     [SerializeField] Animator animator;
     private Vector3 move;
-
+    public Boolean canMove = true;
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -16,7 +17,10 @@ public class PlayerMoviment : MonoBehaviour
 
     private void FixedUpdate()
     {
-        MovePlayer();
+        if (canMove)
+        {
+            MovePlayer();
+        }
     }
 
     private void MovePlayer()
