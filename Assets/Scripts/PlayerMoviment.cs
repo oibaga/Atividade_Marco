@@ -10,6 +10,10 @@ public class PlayerMoviment : MonoBehaviour
     private Vector3 move;
     public Boolean canMove = true;
 
+    private void Awake()
+    {
+        Cursor.visible = false;
+    }
     public void OnMove(InputAction.CallbackContext context)
     {
         move = context.ReadValue<Vector2>();
