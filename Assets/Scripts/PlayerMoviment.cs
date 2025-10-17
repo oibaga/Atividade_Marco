@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMoviment : MonoBehaviour
 {
     [SerializeField] float speed = 5f;
     [SerializeField] CharacterController characterController;
     [SerializeField] Animator animator;
+    [SerializeField] DialogTrigger dialogTrigger1;
     private Vector3 move;
     public Boolean canMove = true;
 
@@ -19,14 +21,26 @@ public class PlayerMoviment : MonoBehaviour
         move = context.ReadValue<Vector2>();
     }
 
-    private void FixedUpdate()
+    private void Start()
+    {
+        dialogTrigger1.TriggerDialog();
+    }
+
+    private void Update()
     {
         if (canMove)
         {
             MovePlayer();
         }
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0);
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            FindFirstObjectByType<DialogManager>().ShowNextSentence();
+        }
     }
-
     private void MovePlayer()
     {
         Vector3 movement = new Vector3(move.y * -1, 0, move.x);
@@ -38,5 +52,15 @@ public class PlayerMoviment : MonoBehaviour
 
         animator.SetBool("isMoving", movement != Vector3.zero);
         characterController.Move(movement * Time.deltaTime * speed);
+    }
+
+    public void BlockMoviment()
+    {
+        canMove = false;
+        animator.SetBool("isMoving", false);
+    }
+    public void UnlockMoviment()
+    {
+        canMove = true;
     }
 }

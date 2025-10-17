@@ -9,16 +9,19 @@ public class DialogManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI dialogText;
+    [SerializeField] private TextMeshProUGUI skipText;
     [SerializeField] private Image imageSprite;
+    [SerializeField] private Image dialogPanel;
     private Queue<Dialog> dialogs;
 
-    private void Start()
+    private void Awake()
     {
         dialogs = new Queue<Dialog>();
     }
 
-    public void StartConversation(Dialog[] dialogs, Boolean playerCanMove)
+    public void StartConversation(Dialog[] dialogs, Boolean playerCanMove = true, Boolean hasBlackPanel = false, Boolean canSkip = false)
     {
+        Debug.Log("StartConversation() chamado");
         this.dialogs.Clear();
 
         foreach (Dialog dialog in dialogs)
@@ -27,10 +30,19 @@ public class DialogManager : MonoBehaviour
         }
 
         ShowNextSentence();
-        imageSprite.enabled = true;
+
+        skipText.gameObject.SetActive(canSkip);
+        dialogPanel.GetComponent<Image>().enabled = hasBlackPanel;
+
+        if (!playerCanMove)
+        {
+            FindFirstObjectByType<PlayerMoviment>().BlockMoviment();
+        }
+
+        dialogPanel.gameObject.SetActive(true);
     }
 
-    private void ShowNextSentence()
+    public void ShowNextSentence()
     {
         if (dialogs.Count == 0)
         {
@@ -46,6 +58,9 @@ public class DialogManager : MonoBehaviour
 
     private void EndDialogue()
     {
-        imageSprite.enabled = false;
+        dialogPanel.gameObject.SetActive(false);
+        this.dialogs.Clear();
+
+        FindFirstObjectByType<PlayerMoviment>().UnlockMoviment();
     }
 }
