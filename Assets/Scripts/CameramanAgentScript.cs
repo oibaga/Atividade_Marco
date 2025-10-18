@@ -15,6 +15,7 @@ public class CameramanAgentScript : MonoBehaviour
     [SerializeField] Transform spotlight;
     [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, 0);
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private AudioSource stepAudioSource;
     private bool isMoving = false;
     private int direction = 0;
 
@@ -68,5 +69,9 @@ public class CameramanAgentScript : MonoBehaviour
         spotlight.position = new Vector3 (handCamera.position.x + cameraOffset.x, spotlight.position.y + cameraOffset.y, handCamera.position.z + cameraOffset.z);
         animator.SetBool("isMoving", isMoving);
         animator.SetInteger("movementDirection", direction);
+    }
+    private void Step()
+    {
+        stepAudioSource.Play();
     }
 }

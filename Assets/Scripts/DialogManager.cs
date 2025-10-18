@@ -12,6 +12,8 @@ public class DialogManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skipText;
     [SerializeField] private Image imageSprite;
     [SerializeField] private Image dialogPanel;
+    [SerializeField] private AudioSource textAudioSource;
+    [SerializeField] private AudioSource customAudioSource;
     private Queue<Dialog> dialogs;
 
     private void Awake()
@@ -53,11 +55,19 @@ public class DialogManager : MonoBehaviour
         nameText.text = dialog.name;
         dialogText.text = dialog.sentence;
         imageSprite.sprite = dialog.image;
+
+        textAudioSource.clip = dialog.textAudios[ UnityEngine.Random.Range(0, dialog.textAudios.Length) ];
+        customAudioSource.clip = dialog.customAudio;
+        textAudioSource.Play();
+        if (customAudioSource.clip) customAudioSource.Play();
     }
 
     private void EndDialogue()
     {
         dialogPanel.gameObject.SetActive(false);
+        textAudioSource.Stop();
+        customAudioSource.Stop();
+
         this.dialogs.Clear();
 
         FindFirstObjectByType<PlayerMoviment>().UnlockMoviment();

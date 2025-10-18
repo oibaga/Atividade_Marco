@@ -9,6 +9,7 @@ public class PlayerMoviment : MonoBehaviour
     [SerializeField] CharacterController characterController;
     [SerializeField] Animator animator;
     [SerializeField] DialogTrigger dialogTrigger1;
+    [SerializeField] private AudioSource stepAudioSource;
     private Vector3 move;
     public Boolean canMove = true;
 
@@ -62,5 +63,10 @@ public class PlayerMoviment : MonoBehaviour
     public void UnlockMoviment()
     {
         canMove = true;
+    }
+
+    private void Step()
+    {
+        stepAudioSource.Play();
     }
 }

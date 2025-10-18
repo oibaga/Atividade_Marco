@@ -11,6 +11,8 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform[] patrolPoints;
+    [SerializeField] private AudioSource stepAudioSource;
+    [SerializeField] private AudioSource roarAudioSource;
 
     private NavMeshAgent agent;
     private int currentPatrolIndex = -1;
@@ -90,6 +92,7 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         animator.SetTrigger("Roar");
         agent.ResetPath();
         agent.speed = 0f;
+
         StartCoroutine( RoarCoroutine() );
     }
     private void Attack() 
@@ -187,5 +190,14 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, loseDistance);
+    }
+
+    private void RoarSound()
+    {
+        roarAudioSource.Play();
+    }
+    private void Step()
+    {
+        stepAudioSource.Play();
     }
 }
