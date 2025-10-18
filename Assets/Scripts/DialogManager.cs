@@ -21,7 +21,6 @@ public class DialogManager : MonoBehaviour
 
     public void StartConversation(Dialog[] dialogs, Boolean playerCanMove = true, Boolean hasBlackPanel = false, Boolean canSkip = false)
     {
-        Debug.Log("StartConversation() chamado");
         this.dialogs.Clear();
 
         foreach (Dialog dialog in dialogs)
