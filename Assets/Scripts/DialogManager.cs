@@ -9,7 +9,6 @@ public class DialogManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI dialogText;
-    [SerializeField] private TextMeshProUGUI skipText;
     [SerializeField] private Image imageSprite;
     [SerializeField] private Image dialogPanel;
     [SerializeField] private AudioSource textAudioSource;

@@ -10,7 +10,7 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private DialogTrigger initialDialogTrigger;
     [SerializeField] private DialogTrigger endDialogTrigger;
     [SerializeField] private PlayerMoviment player;
-    [SerializeField] private TextMeshProUGUI interactionText;
+    [SerializeField] private GameObject interactionText;
     private Material outline;
     private float outlineThickness = 0.03f;
 
@@ -44,12 +44,12 @@ public class InteractableObject : MonoBehaviour
         if (playerClosestObj == this)
         {
             outline.SetFloat("_OutlineThickness", outlineThickness);
-            interactionText.enabled = true;
+            interactionText.SetActive(true);
         }
         else
         {
             outline.SetFloat("_OutlineThickness", 0f);
-            interactionText.enabled = false;
+            interactionText.SetActive(false);
         }
     }
 }

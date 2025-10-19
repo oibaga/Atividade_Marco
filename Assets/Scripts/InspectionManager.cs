@@ -56,8 +56,6 @@ public class Object_Interact : MonoBehaviour
     {
         if (currentInspectInstance) Destroy( currentInspectInstance );
         currentInspectInstance = Instantiate( newObject );
-        
-        RemoveUnecessaryComponents( currentInspectInstance );
 
         currentInspectInstance.transform.SetParent( objToInspect );
 
@@ -66,25 +64,6 @@ public class Object_Interact : MonoBehaviour
         currentInspectInstance.SetActive( true );
     }
 
-    private void RemoveUnecessaryComponents(GameObject inObject)
-    {
-        Component[] components = inObject.GetComponentsInChildren<Component>(true);
-
-        foreach (Component comp in components)
-        {
-            if (comp == null) continue;
-
-            if (
-                comp is Transform ||
-                comp is MeshFilter ||
-                comp is MeshRenderer ||
-                comp is SkinnedMeshRenderer
-                )
-                continue;
-
-            DestroyImmediate(comp);
-        }
-    }
     private void ResetTransform(GameObject inObject)
     {
         if ( inObject )
