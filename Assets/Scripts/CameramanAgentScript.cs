@@ -51,19 +51,12 @@ public class CameramanAgentScript : MonoBehaviour
             direction = 0;
         }
 
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        Debug.DrawRay(ray.origin, ray.direction * 25f, Color.red);
-
-        if (Physics.Raycast(ray, out RaycastHit hit, 25f, groundLayer))
+        Vector3 lookDirection = (target.position - transform.position);
+        lookDirection.y = 0;
+        if (lookDirection != Vector3.zero)
         {
-            Vector3 lookDirection = (hit.point - transform.position);
-            lookDirection.y = 0f;
-
-            if (lookDirection != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-                transform.rotation = Quaternion.Euler(0f, targetRotation.eulerAngles.y, 0f);
-            }
+            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
         }
 
         spotlight.position = new Vector3 (handCamera.position.x + cameraOffset.x, spotlight.position.y + cameraOffset.y, handCamera.position.z + cameraOffset.z);
