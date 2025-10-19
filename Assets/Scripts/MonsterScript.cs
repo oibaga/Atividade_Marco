@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class EnemyFSM_PatrolPoints : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     [SerializeField] private Transform[] patrolPoints;
     [SerializeField] private AudioSource stepAudioSource;
     [SerializeField] private AudioSource roarAudioSource;
+    [SerializeField] private Transform handTransform;
 
     private NavMeshAgent agent;
     private int currentPatrolIndex = -1;
@@ -21,12 +23,14 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
 
     [Header("Configurações de Movimento")]
     [SerializeField] private float detectionRadius = 8f;
+    [SerializeField] private float attackDistance = 2.5f;
     [SerializeField] private float loseDistance = 12f;
     [SerializeField] private float giveUpTime = 3f;
     [SerializeField] private float patrolSpeed = 2.5f;
     [SerializeField] private float chaseSpeed = 4f;
 
     private Coroutine giveUpCoroutine;
+    private bool isHoldingPlayer = false;
 
     private void Awake()
     {
@@ -51,6 +55,10 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
                 break;
             case State.Attack:
                 break;
+        }
+        if (isHoldingPlayer)
+        {
+            player.position = handTransform.position;
         }
     }
     private void Patrol()
@@ -98,6 +106,10 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     private void Attack() 
     {
         animator.SetTrigger("Attack");
+
+        player.gameObject.GetComponent<PlayerMoviment>().canMove = false;
+        isHoldingPlayer = true;
+
         agent.ResetPath();
         agent.speed = 0f;
         StartCoroutine(AttackCoroutine());
@@ -112,7 +124,7 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     private IEnumerator AttackCoroutine()
     {
         yield return new WaitForSeconds(4.04f);
-        ChangeState(State.Patrol);
+        SceneManager.LoadScene(1);
     }
     private void Chase()
     {
@@ -123,6 +135,12 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         agent.SetDestination(player.position);
+
+        if (distanceToPlayer <= attackDistance)
+        {
+            ChangeState(State.Attack);
+            return;
+        }
 
         if (distanceToPlayer > loseDistance)
         {
