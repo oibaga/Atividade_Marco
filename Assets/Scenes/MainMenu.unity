@@ -1958,7 +1958,6 @@ GameObject:
   - component: {fileID: 659793039}
   - component: {fileID: 659793042}
   - component: {fileID: 659793044}
-  - component: {fileID: 659793043}
   m_Layer: 5
   m_Name: EnterButton
   m_TagString: Untagged
@@ -2055,7 +2054,7 @@ MonoBehaviour:
   m_SpriteState:
     m_HighlightedSprite: {fileID: 21300000, guid: f2ba36caee0043c44bdb66979471d850, type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 23cb01e156eb7a74d9a9bb22e4bbd64c, type: 3}
-    m_SelectedSprite: {fileID: 21300000, guid: 23cb01e156eb7a74d9a9bb22e4bbd64c, type: 3}
+    m_SelectedSprite: {fileID: 21300000, guid: f2ba36caee0043c44bdb66979471d850, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -2094,27 +2093,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Delegates: []
   mainMenuEventSystem: {fileID: 939720123}
---- !u!114 &659793043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 659793037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 0
-    callback:
-      m_PersistentCalls:
-        m_Calls: []
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls: []
 --- !u!114 &659793044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2133,6 +2111,14 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
+  - eventID: 10
     callback:
       m_PersistentCalls:
         m_Calls: []
@@ -2382,6 +2368,14 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
+  - eventID: 10
     callback:
       m_PersistentCalls:
         m_Calls: []
@@ -2988,7 +2982,7 @@ MonoBehaviour:
   m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_DeselectOnBackgroundClick: 1
+  m_DeselectOnBackgroundClick: 0
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
@@ -3004,7 +2998,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 659793037}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &939720122
@@ -4262,7 +4256,7 @@ MonoBehaviour:
   m_SpriteState:
     m_HighlightedSprite: {fileID: 21300000, guid: 6d39c40542bf2da49925ef6358d99206, type: 3}
     m_PressedSprite: {fileID: 21300000, guid: c7ca6e3f78f155247b774632ad0ba4bb, type: 3}
-    m_SelectedSprite: {fileID: 21300000, guid: c7ca6e3f78f155247b774632ad0ba4bb, type: 3}
+    m_SelectedSprite: {fileID: 21300000, guid: 6d39c40542bf2da49925ef6358d99206, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -4319,6 +4313,14 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
+  - eventID: 10
     callback:
       m_PersistentCalls:
         m_Calls: []

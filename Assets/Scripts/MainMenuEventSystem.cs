@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -34,6 +35,8 @@ public class MainMenuEventSystem : MonoBehaviour
         popup.SetActive(false);
         creditsButton.enabled = false;
         playButton.enabled = false;
+
+        EventSystem.current.SetSelectedGameObject(credits);
     }
     public void CloseCredits()
     {
@@ -41,6 +44,8 @@ public class MainMenuEventSystem : MonoBehaviour
         popup.SetActive(true);
         creditsButton.enabled = true;
         playButton.enabled = true;
+
+        EventSystem.current.SetSelectedGameObject(creditsButton.gameObject);
     }
 
     public void Clickable()
