@@ -291,9 +291,6 @@ MonoBehaviour:
   m_Name: Sky and Fog Settings 2
   m_EditorClassIdentifier: 
   components:
-  - {fileID: -3262351229581913683}
-  - {fileID: -1202521866108532459}
-  - {fileID: -9032607692965039292}
   - {fileID: 6360276841388116959}
 --- !u!114 &6360276841388116959
 MonoBehaviour:

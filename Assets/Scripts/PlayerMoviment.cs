@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -10,12 +11,24 @@ public class PlayerMoviment : MonoBehaviour
     [SerializeField] Animator animator;
     [SerializeField] DialogTrigger dialogTrigger1;
     [SerializeField] private AudioSource stepAudioSource;
+    [SerializeField] private Transform audioListener;
+
+    [SerializeField] private KeyCode interactKey = KeyCode.E;
+    [SerializeField] private KeyCode actionKey = KeyCode.Space;
+
     private Vector3 move;
     public Boolean canMove = true;
+    public bool isInspecting { get; private set; } = false;
+    InteractableObject objInspecting = null;
+
+    public Queue<int> inventoryIndexes;
+    private readonly List<InteractableObject> nearbyObjects = new List<InteractableObject>();
+    public InteractableObject closestItem = null;
 
     private void Awake()
     {
         Cursor.visible = false;
+        inventoryIndexes = new Queue<int>();
     }
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -29,15 +42,37 @@ public class PlayerMoviment : MonoBehaviour
 
     private void Update()
     {
+        audioListener.position = transform.position;
+
         if (canMove)
         {
             MovePlayer();
+            closestItem = GetClosestObject();
+
+            if (Input.GetKeyDown(interactKey) && !isInspecting && closestItem)
+            {
+                InteractWithClosestObject();
+            }
+        }
+        else
+        {
+            closestItem = null;
+
+            if (Input.GetKeyDown(interactKey) && isInspecting)
+            { 
+                FindFirstObjectByType<Object_Interact>().StopInspection();
+                objInspecting.PickUp( inventoryIndexes );
+                isInspecting = false;
+
+                Destroy( objInspecting.gameObject );
+                objInspecting = null;
+            }
         }
         if (Input.GetKeyUp(KeyCode.Escape))
         {
             SceneManager.LoadScene(0);
         }
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown( actionKey ))
         {
             FindFirstObjectByType<DialogManager>().ShowNextSentence();
         }
@@ -65,8 +100,66 @@ public class PlayerMoviment : MonoBehaviour
         canMove = true;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        InteractableObject interactable = other.GetComponent<InteractableObject>();
+        if (interactable != null && !nearbyObjects.Contains(interactable))
+        {
+            nearbyObjects.Add(interactable);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        InteractableObject interactable = other.GetComponent<InteractableObject>();
+        if (interactable != null && nearbyObjects.Contains(interactable))
+        {
+            nearbyObjects.Remove(interactable);
+        }
+    }
+
+    private void InteractWithClosestObject()
+    {
+            closestItem.Inspect();
+            objInspecting = closestItem;
+
+            isInspecting = true;
+    }
+
+    private InteractableObject GetClosestObject()
+    {
+        if (nearbyObjects.Count == 0) return null;
+
+        InteractableObject closest = null;
+        float closestDistance = Mathf.Infinity;
+        Vector3 playerPos = transform.position;
+
+        foreach (var obj in nearbyObjects)
+        {
+            if (obj == null) continue;
+
+            float dist = Vector3.Distance(playerPos, obj.transform.position);
+            if (dist < closestDistance)
+            {
+                closestDistance = dist;
+                closest = obj;
+            }
+        }
+        return closest;
+    }
+
     private void Step()
     {
         stepAudioSource.Play();
+    }
+
+    public KeyCode GetInteractKey()
+    {
+        return interactKey;
+    }
+
+    public KeyCode GetActionKey()
+    {
+        return actionKey;
     }
 }

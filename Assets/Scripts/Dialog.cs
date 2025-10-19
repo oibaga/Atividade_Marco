@@ -8,4 +8,5 @@ public class Dialog
     public AudioClip[] textAudios;
     public AudioClip customAudio;
     [TextArea(3, 10)] public string sentence;
+    public int index;
 }

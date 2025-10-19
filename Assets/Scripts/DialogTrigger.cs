@@ -3,18 +3,22 @@ using UnityEngine;
 public class DialogTrigger : MonoBehaviour
 {
     public Dialog[] dialogs;
-    [SerializeField] private bool oneTrigger = false;
-    [SerializeField] private bool canMove = true;
-    [SerializeField] private bool hasBlackPanel = false;
+    public bool oneTrigger = false;
+    public bool canMove = true;
+    public bool hasBlackPanel = false;
     private bool canTrigger = true;
 
-    public void TriggerDialog()
+    public virtual void TriggerDialog()
     {
         if (canTrigger)
         {
-            FindFirstObjectByType<DialogManager>().StartConversation(dialogs, canMove, hasBlackPanel);
+            FindFirstObjectByType<DialogManager>().StartConversation(this);
 
             canTrigger = !oneTrigger;
         }
     }
+
+    public virtual void SetCurrentIndex(int index) {}
+
+    public virtual void EndedDialog() {}
 }

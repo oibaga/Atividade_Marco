@@ -87,9 +87,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a3d9f69c66b9fc40870583d00f258d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7947751792116505302}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a3d9f69c66b9fc40870583d00f258d5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1154082921622668713}
   m_SourcePrefab: {fileID: 100100000, guid: 2a3d9f69c66b9fc40870583d00f258d5, type: 3}
 --- !u!1 &1456814467056009433 stripped
 GameObject:
@@ -136,6 +133,11 @@ MonoBehaviour:
   speed: 3
   characterController: {fileID: 6619820765109923886}
   animator: {fileID: 5304212807620460569}
+  dialogTrigger1: {fileID: 0}
+  stepAudioSource: {fileID: 0}
+  audioListener: {fileID: 0}
+  interactKey: 101
+  actionKey: 32
   canMove: 0
 --- !u!114 &7947751792116505302
 MonoBehaviour:
@@ -183,14 +185,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!81 &1154082921622668713
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456814467056009433}
-  m_Enabled: 1
 --- !u!95 &5304212807620460569 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 2a3d9f69c66b9fc40870583d00f258d5, type: 3}

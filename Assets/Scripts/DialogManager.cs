@@ -15,27 +15,30 @@ public class DialogManager : MonoBehaviour
     [SerializeField] private AudioSource textAudioSource;
     [SerializeField] private AudioSource customAudioSource;
     private Queue<Dialog> dialogs;
+    private DialogTrigger currentDialogTrigger;
 
     private void Awake()
     {
         dialogs = new Queue<Dialog>();
     }
 
-    public void StartConversation(Dialog[] dialogs, Boolean playerCanMove = true, Boolean hasBlackPanel = false, Boolean canSkip = false)
+    public void StartConversation(DialogTrigger dialogTrigger)
     {
+        if (dialogTrigger == currentDialogTrigger) return;
         this.dialogs.Clear();
 
-        foreach (Dialog dialog in dialogs)
+        currentDialogTrigger = dialogTrigger;
+        for (int i = 0; i < currentDialogTrigger.dialogs.Length; i++)
         {
-            this.dialogs.Enqueue(dialog);
+            currentDialogTrigger.dialogs[i].index = i;
+            this.dialogs.Enqueue( currentDialogTrigger.dialogs[i] );
         }
 
         ShowNextSentence();
 
-        skipText.gameObject.SetActive(canSkip);
-        dialogPanel.GetComponent<Image>().enabled = hasBlackPanel;
+        dialogPanel.GetComponent<Image>().enabled = dialogTrigger.hasBlackPanel;
 
-        if (!playerCanMove)
+        if (!dialogTrigger.canMove)
         {
             FindFirstObjectByType<PlayerMoviment>().BlockMoviment();
         }
@@ -56,10 +59,27 @@ public class DialogManager : MonoBehaviour
         dialogText.text = dialog.sentence;
         imageSprite.sprite = dialog.image;
 
-        textAudioSource.clip = dialog.textAudios[ UnityEngine.Random.Range(0, dialog.textAudios.Length) ];
-        customAudioSource.clip = dialog.customAudio;
-        textAudioSource.Play();
+        if (dialog.textAudios.Length > 0)
+        {
+            textAudioSource.clip = dialog.textAudios[UnityEngine.Random.Range(0, dialog.textAudios.Length)];
+        }
+        else
+        {
+            textAudioSource.clip = null;
+        }
+        if (dialog.customAudio)
+        {
+            customAudioSource.clip = dialog.customAudio;
+        }
+        else
+        {
+            customAudioSource.clip = null;
+        }
+        if (textAudioSource.clip) textAudioSource.Play();
+
         if (customAudioSource.clip) customAudioSource.Play();
+
+        currentDialogTrigger.SetCurrentIndex( dialog.index );
     }
 
     private void EndDialogue()
@@ -69,7 +89,9 @@ public class DialogManager : MonoBehaviour
         customAudioSource.Stop();
 
         this.dialogs.Clear();
+        currentDialogTrigger?.EndedDialog();
+        currentDialogTrigger = null;
 
-        FindFirstObjectByType<PlayerMoviment>().UnlockMoviment();
+        if ( !FindFirstObjectByType<PlayerMoviment>().isInspecting ) FindFirstObjectByType<PlayerMoviment>().UnlockMoviment();
     }
 }
