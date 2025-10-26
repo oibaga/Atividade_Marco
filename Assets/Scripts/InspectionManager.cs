@@ -6,6 +6,8 @@ public class Object_Interact : MonoBehaviour
     [SerializeField] private GameObject cameraOnTop;
     [SerializeField] private float rotationSpeed = 100f;
 
+    [SerializeField] private VolumetricAdditionalLight cameraManAddLight;
+
     private GameObject currentInspectInstance;
 
     public void StartInspection(GameObject newInspectInstance)
@@ -13,6 +15,7 @@ public class Object_Interact : MonoBehaviour
         SpawnNewObjectToInspect(newInspectInstance);
 
         FindFirstObjectByType<PlayerMoviment>().BlockMoviment();
+        cameraManAddLight.enabled = false;
 
         cameraOnTop.SetActive(true);
     }
@@ -26,6 +29,7 @@ public class Object_Interact : MonoBehaviour
         ResetTransform(currentInspectInstance);
 
         Destroy(currentInspectInstance.gameObject);
+        cameraManAddLight.enabled = true;
 
         currentInspectInstance = null;
     }
