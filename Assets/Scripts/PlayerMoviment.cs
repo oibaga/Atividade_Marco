@@ -68,7 +68,7 @@ public class PlayerMoviment : MonoBehaviour
                 objInspecting = null;
             }
         }
-        if (Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene(0);
         }
