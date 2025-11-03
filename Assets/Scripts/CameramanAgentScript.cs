@@ -50,9 +50,18 @@ public class CameramanAgentScript : MonoBehaviour
         }
         else if (distance <= closestDistance)
         {
-            Vector3 directionFromTarget = (transform.position - target.position).normalized;
-            Vector3 retreatPosition = target.position + directionFromTarget * closestDistance;
-            navMeshAgent.SetDestination(retreatPosition);
+            Vector3 toTarget = (target.position - transform.position).normalized;
+
+            Vector3 rightDir = Vector3.Cross(Vector3.up, toTarget).normalized;
+            Vector3 leftDir = -rightDir;
+
+            bool rightFree = !Physics.Raycast(transform.position, rightDir, 1.5f, groundLayer);
+            bool leftFree = !Physics.Raycast(transform.position, leftDir, 1.5f, groundLayer);
+
+            Vector3 sideStepDir = rightFree ? rightDir : (leftFree ? leftDir : -toTarget);
+            Vector3 sideStepPos = transform.position + sideStepDir * 1.5f;
+
+            navMeshAgent.SetDestination(sideStepPos);
             isMoving = true;
             direction = -1;
         }
@@ -76,6 +85,7 @@ public class CameramanAgentScript : MonoBehaviour
         animator.SetBool("isRunning", inChase);
         animator.SetInteger("movementDirection", direction);
     }
+
 
     private void Step()
     {

@@ -169,7 +169,7 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     private void Attack()
     {
         animator.SetTrigger("Attack");
-        player.gameObject.GetComponent<PlayerMoviment>().canMove = false;
+        player.gameObject.GetComponent<PlayerMoviment>().isGrabbed = true;
         isHoldingPlayer = true;
         agent.ResetPath();
         agent.speed = 0f;

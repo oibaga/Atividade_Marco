@@ -24,6 +24,7 @@ public class PlayerMoviment : MonoBehaviour
 
     private Vector3 move;
     public Boolean canMove = true;
+    public Boolean isGrabbed = false;
     public bool isInspecting { get; private set; } = false;
     InteractableObject objInspecting = null;
 
@@ -53,7 +54,7 @@ public class PlayerMoviment : MonoBehaviour
     {
         audioListener.position = transform.position;
 
-        if (canMove)
+        if (canMove && !isGrabbed)
         {
             MovePlayer();
             closestItem = GetClosestObject();
