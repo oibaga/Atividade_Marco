@@ -9,7 +9,7 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     private State currentState = State.Patrol;
 
     [Header("Referências")]
-    [SerializeField] private Transform player;
+    [SerializeField] private PlayerMoviment player;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform[] patrolPoints;
     [SerializeField] private AudioSource stepAudioSource;
@@ -27,10 +27,15 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
     [SerializeField] private float loseDistance = 12f;
     [SerializeField] private float giveUpTime = 3f;
     [SerializeField] private float patrolSpeed = 2.5f;
-    [SerializeField] private float chaseSpeed = 4f;
+    [SerializeField] private float chaseSpeed = 6f;
+
+    [Header("Raycast de visão")]
+    [SerializeField] private float eyeHeight = 1.5f;
+    [SerializeField] private LayerMask visionMask;
 
     private Coroutine giveUpCoroutine;
     private bool isHoldingPlayer = false;
+    private Vector3 lastKnownPlayerPos = Vector3.zero;
 
     private void Awake()
     {
@@ -56,19 +61,17 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
             case State.Attack:
                 break;
         }
+
         if (isHoldingPlayer)
-        {
-            player.position = handTransform.position;
-        }
+            player.transform.position = handTransform.position;
     }
+
     private void Patrol()
     {
         animator.SetBool("isRunning", false);
         agent.speed = patrolSpeed;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        if (distanceToPlayer <= detectionRadius)
+        if (CanSeePlayer())
         {
             ChangeState(State.Roar);
             return;
@@ -101,18 +104,9 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         agent.ResetPath();
         agent.speed = 0f;
 
-        StartCoroutine( RoarCoroutine() );
-    }
-    private void Attack() 
-    {
-        animator.SetTrigger("Attack");
+        StartCoroutine(RoarCoroutine());
 
-        player.gameObject.GetComponent<PlayerMoviment>().canMove = false;
-        isHoldingPlayer = true;
-
-        agent.ResetPath();
-        agent.speed = 0f;
-        StartCoroutine(AttackCoroutine());
+        player.StartChase();
     }
 
     private IEnumerator RoarCoroutine()
@@ -121,53 +115,71 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         animator.SetTrigger("StartRun");
         ChangeState(State.Chase);
     }
-    private IEnumerator AttackCoroutine()
-    {
-        yield return new WaitForSeconds(4.04f);
-        SceneManager.LoadScene(1);
-    }
+
     private void Chase()
     {
         animator.SetBool("isWalking", false);
         animator.SetBool("isRunning", true);
         agent.speed = chaseSpeed;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        bool seesPlayerNow = CanSeePlayer();
 
-        agent.SetDestination(player.position);
+        if (seesPlayerNow)
+        {
+            lastKnownPlayerPos = player.transform.position;
 
-        if (distanceToPlayer <= attackDistance)
-        {
-            ChangeState(State.Attack);
-            return;
-        }
-
-        if (distanceToPlayer > loseDistance)
-        {
-            if (giveUpCoroutine == null)
-                giveUpCoroutine = StartCoroutine(GiveUpTimer());
-        }
-        else
-        {
             if (giveUpCoroutine != null)
             {
                 StopCoroutine(giveUpCoroutine);
                 giveUpCoroutine = null;
             }
+
+            agent.SetDestination(player.transform.position);
+
+            if (Vector3.Distance(transform.position, player.transform.position) <= attackDistance)
+            {
+                ChangeState(State.Attack);
+                return;
+            }
+        }
+        else
+        {
+            // Ir para última posição conhecida
+            agent.SetDestination(lastKnownPlayerPos);
+
+            // Se ainda não tem timer rodando, inicia
+            if (giveUpCoroutine == null)
+                giveUpCoroutine = StartCoroutine(GiveUpTimer());
         }
     }
 
     private IEnumerator GiveUpTimer()
     {
         yield return new WaitForSeconds(giveUpTime);
-
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        if (distanceToPlayer > loseDistance)
+      
+        if (!CanSeePlayer())
         {
             ChangeState(State.Patrol);
+            player.StopChase();
         }
-
+            
         giveUpCoroutine = null;
+    }
+
+    private void Attack()
+    {
+        animator.SetTrigger("Attack");
+        player.gameObject.GetComponent<PlayerMoviment>().canMove = false;
+        isHoldingPlayer = true;
+        agent.ResetPath();
+        agent.speed = 0f;
+        StartCoroutine(AttackCoroutine());
+    }
+
+    private IEnumerator AttackCoroutine()
+    {
+        yield return new WaitForSeconds(4.04f);
+        SceneManager.LoadScene(1);
     }
 
     private void GoToNextPatrolPoint()
@@ -202,6 +214,30 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         }
     }
 
+    private bool CanSeePlayer()
+    {
+        Vector3 origin = transform.position + Vector3.up * eyeHeight;
+        Vector3 direction = (player.transform.position + Vector3.up * 1.0f) - origin;
+        float distance = direction.magnitude;
+
+        if (distance > detectionRadius)
+            return false;
+
+        if (Physics.Raycast(origin, direction.normalized, out RaycastHit hit, detectionRadius, visionMask))
+        {
+            if (hit.transform.CompareTag("Player"))
+            {
+                Debug.DrawLine(origin, hit.point, Color.green);
+                return true;
+            }
+            else
+            {
+                Debug.DrawLine(origin, hit.point, Color.red);
+            }
+        }
+        return false;
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -210,12 +246,6 @@ public class EnemyFSM_PatrolPoints : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, loseDistance);
     }
 
-    private void RoarSound()
-    {
-        roarAudioSource.Play();
-    }
-    private void Step()
-    {
-        stepAudioSource.Play();
-    }
+    private void RoarSound() => roarAudioSource.Play();
+    private void Step() => stepAudioSource.Play();
 }

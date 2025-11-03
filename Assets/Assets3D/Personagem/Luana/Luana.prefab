@@ -133,12 +133,14 @@ MonoBehaviour:
   speed: 3
   characterController: {fileID: 6619820765109923886}
   animator: {fileID: 5304212807620460569}
+  cameraman: {fileID: 0}
   dialogTrigger1: {fileID: 0}
   stepAudioSource: {fileID: 0}
   audioListener: {fileID: 0}
   interactKey: 101
   actionKey: 32
-  canMove: 0
+  canMove: 1
+  closestItem: {fileID: 0}
 --- !u!114 &7947751792116505302
 MonoBehaviour:
   m_ObjectHideFlags: 0

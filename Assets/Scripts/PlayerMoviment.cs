@@ -6,13 +6,19 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMoviment : MonoBehaviour
 {
-    [SerializeField] float speed = 5f;
+    [Header("Configurações de Movimento")]
+    [SerializeField] float speed = 3f;
+    [SerializeField] float runSpeed = 5f;
+
+    [Header("Referências")]
     [SerializeField] CharacterController characterController;
     [SerializeField] Animator animator;
+    [SerializeField] CameramanAgentScript cameraman;
     [SerializeField] DialogTrigger dialogTrigger1;
     [SerializeField] private AudioSource stepAudioSource;
     [SerializeField] private Transform audioListener;
 
+    [Header("Teclas")]
     [SerializeField] private KeyCode interactKey = KeyCode.E;
     [SerializeField] private KeyCode actionKey = KeyCode.Space;
 
@@ -25,10 +31,13 @@ public class PlayerMoviment : MonoBehaviour
     private readonly List<InteractableObject> nearbyObjects = new List<InteractableObject>();
     public InteractableObject closestItem = null;
 
+    private float defaultSpeed = 3f;
+
     private void Awake()
     {
         Cursor.visible = false;
         inventoryIndexes = new Queue<int>();
+        defaultSpeed = speed;
     }
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -161,5 +170,18 @@ public class PlayerMoviment : MonoBehaviour
     public KeyCode GetActionKey()
     {
         return actionKey;
+    }
+
+    public void StartChase()
+    {
+        animator.SetBool("isRunning", true);
+        cameraman.StartChase();
+        speed = runSpeed;
+    }
+    public void StopChase()
+    {
+        animator.SetBool("isRunning", false);
+        cameraman.StopChase();
+        speed = defaultSpeed;
     }
 }
