@@ -1,7 +1,9 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Animations;
+using UnityEngine.UIElements;
 
 public class CameramanAgentScript : MonoBehaviour
 {
@@ -9,6 +11,11 @@ public class CameramanAgentScript : MonoBehaviour
     [SerializeField] float longestDistance = 3.5f;
     [SerializeField] float closestDistance = 1f;
     [SerializeField] float runSpeed = 5f;
+
+    [Header("Lanterna")]
+    [SerializeField] private float stunRayDistance = 5f;
+    [SerializeField] private float angle = 25f;        // abertura do cone
+    [SerializeField] private LayerMask enemyMask;      // camada do monstro
 
     [Header("Referências")]
     [SerializeField] Transform target;
@@ -72,13 +79,23 @@ public class CameramanAgentScript : MonoBehaviour
             direction = 0;
         }
 
-        Vector3 lookDirection = (target.position - transform.position);
-        lookDirection.y = 0;
-        if (lookDirection != Vector3.zero)
+        Ray ray = mainCamera.ScreenPointToRay(
+        new Vector3(Input.mousePosition.x, Input.mousePosition.y, mainCamera.nearClipPlane)
+);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
-            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+            Vector3 lookDirection = hit.point - transform.position;
+            lookDirection.y = 0f;
+
+            if (lookDirection.sqrMagnitude > 0.001f)
+            {
+                transform.rotation = Quaternion.LookRotation(lookDirection);
+            }
         }
+
+
+        CheckLightRaycasts();
 
         spotlight.position = new Vector3(handCamera.position.x, spotlight.position.y, handCamera.position.z);
         animator.SetBool("isMoving", isMoving);
@@ -86,8 +103,56 @@ public class CameramanAgentScript : MonoBehaviour
         animator.SetInteger("movementDirection", direction);
     }
 
+    private void CheckLightRaycasts()
+    {
+        Vector3 forward = transform.forward;
+        Vector3 left = Quaternion.AngleAxis(-angle, Vector3.up) * forward;
+        Vector3 right = Quaternion.AngleAxis(angle, Vector3.up) * forward;
 
-    private void Step()
+        Vector3 origin = transform.position;
+        origin.y = 5f;
+
+        // RAYCAST CENTRAL
+        if (Physics.Raycast(transform.position, forward, out RaycastHit hitCenter, stunRayDistance, enemyMask))
+        {
+            hitCenter.collider.GetComponent<MonsterScript>()?.ApplyStun(3f);
+        }
+
+        // RAYCAST ESQUERDA
+        if (Physics.Raycast(transform.position, left, out RaycastHit hitLeft, stunRayDistance, enemyMask))
+        {
+            hitLeft.collider.GetComponent<MonsterScript>()?.ApplyStun(3f);
+        }
+
+        // RAYCAST DIREITA
+        if (Physics.Raycast(transform.position, right, out RaycastHit hitRight, stunRayDistance, enemyMask))
+        {
+            hitRight.collider.GetComponent<MonsterScript>()?.ApplyStun(3f);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+
+        Vector3 origin = transform.position;
+        origin.y = 5f;
+        Vector3 forward = transform.forward;
+
+        // Ray central
+        Vector3 centralDir = forward;
+        Gizmos.DrawLine(origin, origin + centralDir * stunRayDistance);
+
+        // Ray da esquerda
+        Vector3 leftDir = Quaternion.Euler(0, -angle, 0) * forward;
+        Gizmos.DrawLine(origin, origin + leftDir * stunRayDistance);
+
+        // Ray da direita
+        Vector3 rightDir = Quaternion.Euler(0, angle, 0) * forward;
+        Gizmos.DrawLine(origin, origin + rightDir * stunRayDistance);
+    }
+
+private void Step()
     {
         stepAudioSource.Play();
     }
