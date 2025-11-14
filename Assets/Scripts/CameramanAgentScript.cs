@@ -83,7 +83,7 @@ public class CameramanAgentScript : MonoBehaviour
         new Vector3(Input.mousePosition.x, Input.mousePosition.y, mainCamera.nearClipPlane)
 );
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
+        if (Physics.Raycast(ray, out RaycastHit hit, 25f, groundLayer))
         {
             Vector3 lookDirection = hit.point - transform.position;
             lookDirection.y = 0f;
