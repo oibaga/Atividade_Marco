@@ -90,8 +90,9 @@ public class MonsterScript : MonoBehaviour
         isStunned = true;
         ChangeState(State.Stunned);
 
-        if (stunCoroutine != null)
-            StopCoroutine(stunCoroutine);
+        if (duration <= 0f) return; // a única coisa que termina o stun é o timer, se o timer não iniciar (is permanent), o stun nunca acaba
+
+        if (stunCoroutine != null) StopCoroutine(stunCoroutine);
 
         stunCoroutine = StartCoroutine(StunTimer(duration));
     }
