@@ -2,7 +2,6 @@
 using UnityEngine.AI;
 using System.Collections;
 using UnityEngine.SceneManagement;
-using System;
 
 public class MonsterScript : MonoBehaviour
 {
@@ -11,6 +10,7 @@ public class MonsterScript : MonoBehaviour
 
     [Header("Referências")]
     [SerializeField] private PlayerMoviment player;
+    [SerializeField] private CameramanAgentScript cameraman; // NOVO
     [SerializeField] private Animator animator;
     [SerializeField] private AudioSource stepAudioSource;
     [SerializeField] private AudioSource roarAudioSource;
@@ -25,6 +25,7 @@ public class MonsterScript : MonoBehaviour
 
     private Coroutine giveUpCoroutine;
     private bool isHoldingPlayer = false;
+    private bool isHoldingCameraman = false; // NOVO
     private Vector3 lastKnownPlayerPos = Vector3.zero;
     private bool isStunned = false;
     private Coroutine stunCoroutine;
@@ -41,20 +42,17 @@ public class MonsterScript : MonoBehaviour
     {
         switch (currentState)
         {
-            case State.Roar:
-                break;
-            case State.Chase:
-                Chase();
-                break;
-            case State.Attack:
-                break;
-            case State.Stunned:
-                StunnedBehavior();
-                break;
+            case State.Roar: break;
+            case State.Chase: Chase(); break;
+            case State.Attack: break;
+            case State.Stunned: StunnedBehavior(); break;
         }
 
         if (isHoldingPlayer)
             player.transform.position = handTransform.position;
+
+        if (isHoldingCameraman)
+            cameraman.transform.position = handTransform.position;
     }
 
     private void StunnedBehavior()
@@ -73,11 +71,12 @@ public class MonsterScript : MonoBehaviour
         StartCoroutine(RoarCoroutine());
 
         player.StartChase();
+        cameraman.StartChase(); // NOVO
     }
 
     private IEnumerator RoarCoroutine()
     {
-        yield return new WaitForSeconds(5.1f); // tempo da animação de rugido
+        yield return new WaitForSeconds(5.1f);
         animator.SetTrigger("StartRun");
         ChangeState(State.Chase);
     }
@@ -90,10 +89,9 @@ public class MonsterScript : MonoBehaviour
         isStunned = true;
         ChangeState(State.Stunned);
 
-        if (duration <= 0f) return; // a única coisa que termina o stun é o timer, se o timer não iniciar (is permanent), o stun nunca acaba
+        if (duration <= 0f) return;
 
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
-
         stunCoroutine = StartCoroutine(StunTimer(duration));
     }
 
@@ -102,7 +100,6 @@ public class MonsterScript : MonoBehaviour
         yield return new WaitForSeconds(duration);
 
         isStunned = false;
-
         ChangeState(State.Chase);
 
         StartCoroutine(StunCooldown());
@@ -111,23 +108,25 @@ public class MonsterScript : MonoBehaviour
     private IEnumerator StunCooldown()
     {
         yield return new WaitForSeconds(stunCooldown);
-
         canStun = true;
     }
 
     private void Chase()
     {
-        if (isStunned) return; 
+        if (isStunned) return;
 
         animator.SetBool("isRunning", true);
         agent.speed = chaseSpeed;
 
+        // Persegue sempre o player
         agent.SetDestination(player.transform.position);
 
-        if (Vector3.Distance(transform.position, player.transform.position) <= attackDistance)
+        float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        float distToCameraman = Vector3.Distance(transform.position, cameraman.transform.position);
+
+        if (distToPlayer <= attackDistance || distToCameraman <= attackDistance)
         {
             ChangeState(State.Attack);
-            return;
         }
     }
 
@@ -136,11 +135,30 @@ public class MonsterScript : MonoBehaviour
         if (isStunned) return;
 
         animator.SetTrigger("Attack");
-        player.gameObject.GetComponent<PlayerMoviment>().isGrabbed = true;
-        isHoldingPlayer = true;
         agent.ResetPath();
         agent.speed = 0f;
+
+        float distPlayer = Vector3.Distance(transform.position, player.transform.position);
+        float distCamera = Vector3.Distance(transform.position, cameraman.transform.position);
+
+        if (distPlayer <= distCamera)
+            GrabPlayer();
+        else
+            GrabCameraman();
+
         StartCoroutine(AttackCoroutine());
+    }
+
+    private void GrabPlayer()
+    {
+        player.isGrabbed = true;
+        isHoldingPlayer = true;
+    }
+
+    private void GrabCameraman()
+    {
+        cameraman.isGrabbed = true;  // ADICIONE ESTA VAR NO CAMERA SCRIPT
+        isHoldingCameraman = true;
     }
 
     private IEnumerator AttackCoroutine()
@@ -157,25 +175,15 @@ public class MonsterScript : MonoBehaviour
         currentState = newState;
 
         switch (newState)
-        {   
-            case State.Roar:
-                Roar();
-                break;
-
-            case State.Chase:
-                break;
-
-            case State.Attack:
-                Attack();
-                break;
-
+        {
+            case State.Roar: Roar(); break;
+            case State.Chase: break;
+            case State.Attack: Attack(); break;
             case State.Stunned:
                 agent.ResetPath();
                 agent.speed = 0f;
                 animator.SetTrigger("Stunned");
-
                 RoarSound();
-
                 break;
         }
     }
@@ -184,6 +192,7 @@ public class MonsterScript : MonoBehaviour
     {
         isStunned = false;
         isHoldingPlayer = false;
+        isHoldingCameraman = false;
 
         agent.ResetPath();
         agent.speed = chaseSpeed;

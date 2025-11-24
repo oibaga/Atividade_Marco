@@ -26,6 +26,7 @@ public class CameramanAgentScript : MonoBehaviour
     [SerializeField] Transform spotlight;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private AudioSource stepAudioSource;
+    public bool isGrabbed = false;
 
     private bool isMoving = false;
     private int direction = 0;
@@ -45,6 +46,15 @@ public class CameramanAgentScript : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isGrabbed)
+        {
+            navMeshAgent.ResetPath();
+            animator.SetBool("isMoving", false);
+            animator.SetBool("isRunning", false);
+            direction = 0;
+            return;   // Cameraman não faz nada enquanto está preso
+        }
+
         float distance = Vector3.Distance(transform.position, target.position);
 
         if (distance > longestDistance)
@@ -152,7 +162,7 @@ public class CameramanAgentScript : MonoBehaviour
         Gizmos.DrawLine(origin, origin + rightDir * stunRayDistance);
     }
 
-private void Step()
+    private void Step()
     {
         stepAudioSource.Play();
     }
@@ -160,7 +170,7 @@ private void Step()
     public void StartChase()
     {
         inChase = true;
-        longestDistance = 2f;
+        longestDistance = 1f;
         closestDistance = 1f;
         navMeshAgent.speed = runSpeed;
     }
@@ -172,4 +182,22 @@ private void Step()
         closestDistance = defaultClosestDistance;
         navMeshAgent.speed = defaultNavMeshSpeed;
     }
+
+    public void Grab()
+    {
+        isGrabbed = true;
+
+        navMeshAgent.ResetPath();
+        navMeshAgent.isStopped = true;
+
+        animator.SetBool("isMoving", false);
+        animator.SetBool("isRunning", false);
+    }
+
+    public void Release()
+    {
+        isGrabbed = false;
+        navMeshAgent.isStopped = false;
+    }
+
 }
