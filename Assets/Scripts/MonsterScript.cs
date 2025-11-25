@@ -10,7 +10,7 @@ public class MonsterScript : MonoBehaviour
 
     [Header("Referências")]
     [SerializeField] private PlayerMoviment player;
-    [SerializeField] private CameramanAgentScript cameraman; // NOVO
+    [SerializeField] private CameramanAgentScript cameraman;
     [SerializeField] private Animator animator;
     [SerializeField] private AudioSource stepAudioSource;
     [SerializeField] private AudioSource roarAudioSource;
@@ -25,8 +25,7 @@ public class MonsterScript : MonoBehaviour
 
     private Coroutine giveUpCoroutine;
     private bool isHoldingPlayer = false;
-    private bool isHoldingCameraman = false; // NOVO
-    private Vector3 lastKnownPlayerPos = Vector3.zero;
+    private bool isHoldingCameraman = false;
     private bool isStunned = false;
     private Coroutine stunCoroutine;
     private bool canStun = true;

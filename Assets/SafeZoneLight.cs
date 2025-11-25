@@ -5,10 +5,6 @@ public class SafeZoneLight : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        MonsterScript monster = other.GetComponent<MonsterScript>();
-        if (monster != null)
-        {
-            monster.ApplyStun(0f);
-        }
+        other.GetComponent<MonsterScript>()?.ApplyStun(0f);
     }
 }
